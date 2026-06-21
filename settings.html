@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Settings</title>
+    <link rel="icon" href="https://files.catbox.moe/vygiot.png" type="image/png">
+    <style>
+        :root {
+            --bg: #000;
+            --surface: #080808;
+            --border: #1c1c1c;
+            --text: #f0f0f0;
+            --text-secondary: #777;
+            --accent: #fff;
+            --hover: #121212;
+            --danger: #ff3b30;
+            --success: #30d158;
+            --font: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            letter-spacing: -0.2px;
+            padding-bottom: 80px;
+        }
+
+        /* TOP BAR */
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .back-btn {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.12s;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+        .back-btn:active {
+            background: var(--hover);
+            color: var(--text);
+        }
+        .page-title {
+            font-size: 17px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+
+        /* MAIN CONTENT */
+        .content {
+            padding: 20px 16px;
+            max-width: 700px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .section {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 16px;
+        }
+        .section-title {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: #555;
+            margin-bottom: 12px;
+        }
+        .setting-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+        .setting-label {
+            font-size: 13px;
+            font-weight: 500;
+        }
+        .setting-desc {
+            font-size: 10px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+        .toggle-btn {
+            width: 44px;
+            height: 24px;
+            border-radius: 12px;
+            background: #1a1a1a;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.2s;
+            flex-shrink: 0;
+        }
+        .toggle-btn.active {
+            background: rgba(255,255,255,0.15);
+        }
+        .toggle-btn::after {
+            content: '';
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #555;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: all 0.2s;
+        }
+        .toggle-btn.active::after {
+            background: #fff;
+            left: 22px;
+        }
+        .action-btn {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.12s;
+            background: transparent;
+            font-family: var(--font);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+        .action-btn:active {
+            background: var(--hover);
+            color: var(--text);
+        }
+        .action-btn.danger {
+            border-color: rgba(255,59,48,0.2);
+            color: var(--danger);
+        }
+        .action-btn.danger:active {
+            background: rgba(255,59,48,0.08);
+        }
+
+        .version-info {
+            text-align: center;
+            font-size: 10px;
+            color: #444;
+            margin-top: 8px;
+        }
+        .version-info span {
+            color: #666;
+            font-weight: 600;
+        }
+
+        /* BOTTOM NAV */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0 env(safe-area-inset-bottom, 8px);
+            z-index: 50;
+        }
+        .bottom-nav a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            text-decoration: none;
+            color: #555;
+            font-size: 9px;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            padding: 4px 14px;
+            border-radius: 12px;
+            transition: all 0.15s;
+        }
+        .bottom-nav a.active {
+            color: #fff;
+        }
+        .bottom-nav a .nav-icon {
+            font-size: 18px;
+            line-height: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="topbar">
+        <a href="dashboard.html" class="back-btn">&#8592;</a>
+        <span class="page-title">Settings</span>
+    </header>
+
+    <main class="content">
+        <!-- Preferences -->
+        <div class="section">
+            <div class="section-title">Preferences</div>
+            <div class="setting-item">
+                <div>
+                    <div class="setting-label">Animasi Splash Screen</div>
+                    <div class="setting-desc">Tampilkan animasi saat startup</div>
+                </div>
+                <div class="toggle-btn active" id="toggleSplash" onclick="toggleSetting('splash')"></div>
+            </div>
+            <div class="setting-item">
+                <div>
+                    <div class="setting-label">Simpan Riwayat Chat</div>
+                    <div class="setting-desc">Otomatis menyimpan percakapan</div>
+                </div>
+                <div class="toggle-btn active" id="toggleHistory" onclick="toggleSetting('history')"></div>
+            </div>
+            <div class="setting-item">
+                <div>
+                    <div class="setting-label">Notifikasi</div>
+                    <div class="setting-desc">Aktifkan notifikasi browser</div>
+                </div>
+                <div class="toggle-btn" id="toggleNotif" onclick="toggleSetting('notif')"></div>
+            </div>
+        </div>
+
+        <!-- Data Management -->
+        <div class="section">
+            <div class="section-title">Data Management</div>
+            <button class="action-btn" onclick="exportData()">Export Chat History (JSON)</button>
+            <button class="action-btn" onclick="importData()">Import Chat History</button>
+            <button class="action-btn danger" onclick="clearChatHistory()">Hapus Riwayat Chat</button>
+            <button class="action-btn danger" onclick="resetAllSettings()">Reset Semua Pengaturan</button>
+        </div>
+
+        <!-- About -->
+        <div class="section">
+            <div class="section-title">About</div>
+            <div class="setting-item">
+                <div>
+                    <div class="setting-label">Aplikasi</div>
+                    <div class="setting-desc">Vlota AI & Vloral AI</div>
+                </div>
+            </div>
+            <div class="setting-item">
+                <div>
+                    <div class="setting-label">Versi</div>
+                    <div class="setting-desc">v2.4.1</div>
+                </div>
+            </div>
+            <div class="setting-item">
+                <div>
+                    <div class="setting-label">Creator</div>
+                    <div class="setting-desc">Gibran</div>
+                </div>
+            </div>
+            <div class="setting-item">
+                <div>
+                    <div class="setting-label">API</div>
+                    <div class="setting-desc">api-nanzz.my.id</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="version-info">
+            Vlota AI & Vloral AI <span>v2.4.1</span> &middot; Created by <span>Gibran</span>
+        </div>
+    </main>
+
+    <nav class="bottom-nav">
+        <a href="dashboard.html"><span class="nav-icon">&#9679;</span> Home</a>
+        <a href="vlota-chat.html"><span class="nav-icon">&#9679;</span> Vlota</a>
+        <a href="vloral-chat.html"><span class="nav-icon">&#9679;</span> Vloral</a>
+        <a href="jailbreak.html"><span class="nav-icon">&#9679;</span> Jailbreak</a>
+        <a href="settings.html" class="active"><span class="nav-icon">&#9679;</span> Settings</a>
+    </nav>
+
+    <script>
+        const SETTINGS_KEY = 'vlota_settings';
+        const HISTORY_KEY = 'vlota_chat_history';
+
+        function getSettings() {
+            const defaults = {
+                splash: true,
+                history: true,
+                notif: false
+            };
+            try {
+                const raw = localStorage.getItem(SETTINGS_KEY);
+                return raw ? { ...defaults, ...JSON.parse(raw) } : defaults;
+            } catch (e) {
+                return defaults;
+            }
+        }
+
+        function saveSettings(settings) {
+            localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+        }
+
+        function applySettings() {
+            const settings = getSettings();
+            document.getElementById('toggleSplash').classList.toggle('active', settings.splash);
+            document.getElementById('toggleHistory').classList.toggle('active', settings.history);
+            document.getElementById('toggleNotif').classList.toggle('active', settings.notif);
+        }
+
+        function toggleSetting(key) {
+            const settings = getSettings();
+            settings[key] = !settings[key];
+            saveSettings(settings);
+            applySettings();
+
+            if (key === 'history' && !settings.history) {
+                // Optionally clear history when disabling
+                localStorage.removeItem(HISTORY_KEY);
+            }
+        }
+
+        function clearChatHistory() {
+            if (confirm('Hapus semua riwayat percakapan? Tindakan ini tidak bisa dibatalkan.')) {
+                localStorage.removeItem(HISTORY_KEY);
+                alert('Riwayat chat berhasil dihapus.');
+            }
+        }
+
+        function resetAllSettings() {
+            if (confirm('Reset semua pengaturan ke default? Semua data tersimpan akan dihapus.')) {
+                localStorage.removeItem(SETTINGS_KEY);
+                localStorage.removeItem(HISTORY_KEY);
+                localStorage.removeItem('vlota_session');
+                sessionStorage.removeItem('splashSeen');
+                applySettings();
+                alert('Semua pengaturan telah direset.');
+                window.location.reload();
+            }
+        }
+
+        function exportData() {
+            const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+            const settings = getSettings();
+            const data = {
+                exportedAt: new Date().toISOString(),
+                settings: settings,
+                history: history
+            };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'vlota-backup-' + new Date().toISOString().split('T')[0] + '.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function importData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = function() {
+                const file = this.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = function() {
+                    try {
+                        const data = JSON.parse(reader.result);
+                        if (data.settings) {
+                            saveSettings(data.settings);
+                        }
+                        if (data.history) {
+                            localStorage.setItem(HISTORY_KEY, JSON.stringify(data.history));
+                        }
+                        applySettings();
+                        alert('Data berhasil diimport.');
+                        window.location.reload();
+                    } catch (e) {
+                        alert('File tidak valid.');
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+
+        // Initialize
+        applySettings();
+    </script>
+</body>
+</html>

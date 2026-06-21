@@ -1,0 +1,1306 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Vlota AI | Vloral AI</title>
+    <link rel="icon" href="https://files.catbox.moe/vygiot.png" type="image/png">
+    <style>
+        :root {
+            --bg: #000;
+            --surface: #080808;
+            --border: #1c1c1c;
+            --text: #f0f0f0;
+            --text-secondary: #777;
+            --accent: #fff;
+            --hover: #121212;
+            --danger: #ff3b30;
+            --success: #30d158;
+            --warning: #ff9f0a;
+            --font: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            letter-spacing: -0.2px;
+            overflow-x: hidden;
+        }
+
+        /* ========== SPLASH SCREEN ========== */
+        .splash {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.6s ease, visibility 0.6s ease;
+            overflow: hidden;
+        }
+        .splash.exit {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        .splash-bg-grid {
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 32px 32px;
+            animation: gridMove 20s linear infinite;
+            pointer-events: none;
+        }
+        @keyframes gridMove {
+            0% { transform: translate(0,0); }
+            100% { transform: translate(32px,32px); }
+        }
+
+        .particle {
+            position: absolute;
+            width: 1px; height: 1px;
+            background: #fff;
+            border-radius: 50%;
+            animation: floatUp linear infinite;
+            opacity: 0;
+        }
+        @keyframes floatUp {
+            0% { transform: translateY(100vh) scale(0); opacity: 0; }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.2; }
+            100% { transform: translateY(-10vh) scale(1.5); opacity: 0; }
+        }
+
+        /* Robot / Logo Container */
+        .robot-wrap {
+            position: relative;
+            margin-bottom: 24px;
+            z-index: 2;
+            animation: robotFloat 3.2s ease-in-out infinite;
+        }
+        .robot-head {
+            width: 70px;
+            height: 80px;
+            background: #0a0a0a;
+            border: 2px solid #333;
+            border-radius: 18px 18px 22px 22px;
+            position: relative;
+            box-shadow: 0 0 30px rgba(255,255,255,0.04);
+        }
+        .robot-head::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 22px;
+            height: 10px;
+            background: #0a0a0a;
+            border: 2px solid #333;
+            border-bottom: none;
+            border-radius: 12px 12px 0 0;
+        }
+        .antenna {
+            position: absolute;
+            top: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 10px;
+            background: #555;
+            border-radius: 1px;
+        }
+        .antenna::after {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: -2px;
+            width: 6px;
+            height: 6px;
+            background: #fff;
+            border-radius: 50%;
+            animation: antennaGlow 1.8s ease-in-out infinite;
+        }
+        @keyframes antennaGlow {
+            0%,100% { box-shadow: 0 0 6px rgba(255,255,255,0.5); }
+            50% { box-shadow: 0 0 14px rgba(255,255,255,0.9); }
+        }
+        .robot-eye {
+            position: absolute;
+            width: 7px;
+            height: 9px;
+            background: #fff;
+            border-radius: 50%;
+            top: 26px;
+            animation: eyeBlink 4s ease-in-out infinite;
+        }
+        .robot-eye.left { left: 17px; }
+        .robot-eye.right { right: 17px; }
+        @keyframes eyeBlink {
+            0%,45%,55%,100% { transform: scaleY(1); }
+            50% { transform: scaleY(0.1); }
+        }
+        .robot-mouth {
+            position: absolute;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 24px;
+            height: 2px;
+            background: #333;
+            border-radius: 1px;
+        }
+        .robot-mouth::after {
+            content: '';
+            position: absolute;
+            top: 5px;
+            left: 3px;
+            width: 18px;
+            height: 1.5px;
+            background: #333;
+            border-radius: 1px;
+        }
+        .scan-line {
+            position: absolute;
+            top: 0;
+            left: 4px;
+            right: 4px;
+            height: 1px;
+            background: rgba(255,255,255,0.55);
+            animation: scanDown 2.6s ease-in-out infinite;
+            border-radius: 1px;
+            z-index: 2;
+        }
+        @keyframes scanDown {
+            0%,100% { top: 8px; opacity: 0; }
+            30% { opacity: 1; }
+            70% { opacity: 1; }
+            100% { top: 72px; opacity: 0; }
+        }
+        .robot-body {
+            width: 3px;
+            height: 14px;
+            background: #333;
+            margin: 0 auto;
+            border-radius: 0 0 2px 2px;
+        }
+        .robot-arm {
+            position: absolute;
+            width: 2px;
+            height: 20px;
+            background: #333;
+            top: 54px;
+        }
+        .robot-arm.left { left: -10px; transform: rotate(18deg); border-radius: 0 0 2px 2px; animation: armLeft 3s ease-in-out infinite; }
+        .robot-arm.right { right: -10px; transform: rotate(-18deg); border-radius: 0 0 2px 2px; animation: armRight 3s ease-in-out infinite; }
+        @keyframes armLeft {
+            0%,100% { transform: rotate(18deg); }
+            50% { transform: rotate(22deg); }
+        }
+        @keyframes armRight {
+            0%,100% { transform: rotate(-18deg); }
+            50% { transform: rotate(-22deg); }
+        }
+        @keyframes robotFloat {
+            0%,100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+
+        .splash-title {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 2px;
+            z-index: 2;
+        }
+        .splash-subtitle {
+            font-size: 10px;
+            color: #666;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            z-index: 2;
+            margin-bottom: 18px;
+        }
+
+        .typewriter-wrap {
+            height: 20px;
+            margin-bottom: 14px;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+        }
+        .typewriter {
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            color: #aaa;
+            letter-spacing: 0.5px;
+            border-right: 1px solid #555;
+            padding-right: 4px;
+            animation: cursorBlink 0.8s step-end infinite;
+            white-space: nowrap;
+        }
+        @keyframes cursorBlink {
+            0%,100% { border-color: #555; }
+            50% { border-color: transparent; }
+        }
+
+        .progress-wrap {
+            width: 160px;
+            height: 2px;
+            background: #1a1a1a;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 28px;
+            z-index: 2;
+        }
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            background: #fff;
+            border-radius: 2px;
+            transition: width 0.4s ease;
+        }
+
+        .btn-init-wrap {
+            z-index: 2;
+            opacity: 0;
+            transform: translateY(8px);
+            transition: all 0.5s ease;
+            pointer-events: none;
+        }
+        .btn-init-wrap.show {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+        .btn-init {
+            padding: 13px 44px;
+            background: transparent;
+            border: 1.5px solid #fff;
+            color: #fff;
+            font-family: var(--font);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.02);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .btn-init:active {
+            background: #fff;
+            color: #000;
+            transform: scale(0.96);
+        }
+        .btn-init-glow {
+            position: absolute;
+            inset: -2px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.12);
+            animation: glowPulse 2.5s ease-in-out infinite;
+            pointer-events: none;
+        }
+        @keyframes glowPulse {
+            0%,100% { opacity: 0.35; }
+            50% { opacity: 0.9; }
+        }
+
+        .transition-flash {
+            position: fixed;
+            inset: 0;
+            background: #fff;
+            z-index: 998;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.15s ease;
+        }
+        .transition-flash.active {
+            opacity: 1;
+            transition: opacity 0.1s ease;
+        }
+
+        /* ========== DASHBOARD ========== */
+        .dashboard {
+            opacity: 0;
+            transform: translateY(18px);
+            transition: opacity 0.7s ease 0.25s, transform 0.7s ease 0.25s;
+        }
+        .dashboard.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* TOP BAR */
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .brand-logo {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            overflow: hidden;
+            background: #0a0a0a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .brand-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .brand-text {
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+        .brand-sub {
+            font-size: 9px;
+            color: var(--text-secondary);
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            display: block;
+            line-height: 1;
+        }
+        .topbar-actions {
+            display: flex;
+            gap: 6px;
+        }
+        .icon-btn {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 15px;
+            transition: all 0.12s;
+        }
+        .icon-btn:active {
+            background: var(--hover);
+            color: var(--text);
+        }
+
+        /* SIDEBAR */
+        .sidebar-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 99;
+            display: none;
+        }
+        .sidebar-overlay.show {
+            display: block;
+        }
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 260px;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            z-index: 100;
+            padding: 20px 14px;
+            transform: translateX(-100%);
+            transition: transform 0.2s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar.show {
+            transform: translateX(0);
+        }
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+        .sidebar-logo {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            overflow: hidden;
+            background: #0a0a0a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .sidebar-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .sidebar-close {
+            width: 30px;
+            height: 30px;
+            background: var(--hover);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .nav-group {
+            margin-bottom: 20px;
+        }
+        .nav-label {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #555;
+            margin-bottom: 6px;
+            padding: 0 8px;
+        }
+        .nav-link {
+            display: block;
+            padding: 10px 12px;
+            border-radius: 8px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.12s;
+            margin-bottom: 1px;
+        }
+        .nav-link:active,
+        .nav-link.active {
+            background: var(--hover);
+            color: var(--text);
+        }
+
+        /* MAIN CONTENT */
+        .content {
+            padding: 20px 14px;
+            max-width: 700px;
+            margin: 0 auto;
+            padding-bottom: 100px;
+        }
+
+        .greeting {
+            margin-bottom: 20px;
+        }
+        .greeting h1 {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 2px;
+        }
+        .greeting p {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* STATS */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px;
+        }
+        .stat-card .value {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+        .stat-card .label {
+            font-size: 10px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        /* QUICK ACTIONS */
+        .quick-actions {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .quick-btn {
+            flex: 1;
+            padding: 12px 8px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            color: var(--text-secondary);
+            transition: all 0.12s;
+            text-transform: uppercase;
+        }
+        .quick-btn:active {
+            background: var(--hover);
+            color: var(--text);
+            border-color: #444;
+        }
+
+        /* SYSTEM STATUS */
+        .system-status {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            background: var(--success);
+            border-radius: 50%;
+            box-shadow: 0 0 8px rgba(48,209,88,0.5);
+            animation: pulseGreen 2s ease-in-out infinite;
+        }
+        @keyframes pulseGreen {
+            0%,100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+        .status-text {
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: -0.2px;
+        }
+        .status-detail {
+            font-size: 10px;
+            color: var(--text-secondary);
+            margin-left: auto;
+        }
+
+        /* SECTION HEADERS */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .section-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: #555;
+        }
+        .section-more {
+            font-size: 10px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: color 0.12s;
+        }
+        .section-more:active {
+            color: var(--text);
+        }
+
+        /* AI CARDS */
+        .ai-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .ai-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            text-decoration: none;
+            color: var(--text);
+            display: block;
+            transition: border-color 0.15s, transform 0.15s;
+        }
+        .ai-card:active {
+            border-color: #444;
+            transform: scale(0.995);
+        }
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 6px;
+        }
+        .card-name {
+            font-size: 17px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+        .card-badge {
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 3px 8px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+        .card-badge.online {
+            border-color: rgba(48,209,88,0.25);
+            color: var(--success);
+        }
+        .card-badge.danger {
+            border-color: rgba(255,59,48,0.25);
+            color: var(--danger);
+        }
+        .card-badge.warning {
+            border-color: rgba(255,159,10,0.25);
+            color: var(--warning);
+        }
+        .card-desc {
+            font-size: 11px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+        .card-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        .tag {
+            font-size: 10px;
+            padding: 3px 8px;
+            border-radius: 5px;
+            background: #111;
+            border: 1px solid #1c1c1c;
+            color: #999;
+        }
+
+        /* RECENT */
+        .recent-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+        .recent-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.12s;
+        }
+        .recent-item:active {
+            background: var(--hover);
+        }
+        .recent-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .recent-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--success);
+            flex-shrink: 0;
+        }
+        .recent-dot.warning {
+            background: var(--warning);
+        }
+        .recent-name {
+            font-size: 13px;
+            font-weight: 500;
+        }
+        .recent-time {
+            font-size: 10px;
+            color: var(--text-secondary);
+            flex-shrink: 0;
+        }
+
+        /* ACTIVITY LOG */
+        .activity-log {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 20px;
+        }
+        .log-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .log-item:last-child {
+            border-bottom: none;
+        }
+        .log-icon {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-top: 4px;
+            flex-shrink: 0;
+        }
+        .log-icon.success { background: var(--success); }
+        .log-icon.info { background: var(--text-secondary); }
+        .log-icon.warn { background: var(--warning); }
+        .log-content {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+        .log-time {
+            font-size: 10px;
+            color: #555;
+            margin-left: auto;
+            flex-shrink: 0;
+        }
+
+        /* RESOURCE BARS */
+        .resource-section {
+            margin-bottom: 20px;
+        }
+        .resource-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-size: 10px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .resource-bar .bar-label {
+            width: 60px;
+            flex-shrink: 0;
+        }
+        .bar-track {
+            flex: 1;
+            height: 4px;
+            background: #1a1a1a;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .bar-fill {
+            height: 100%;
+            background: #fff;
+            border-radius: 2px;
+            transition: width 0.6s ease;
+        }
+
+        /* TIPS */
+        .tips-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 20px;
+        }
+        .tips-title {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--warning);
+            margin-bottom: 6px;
+        }
+        .tips-text {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        /* FOOTER */
+        .footer {
+            text-align: center;
+            font-size: 10px;
+            color: #444;
+            padding: 16px 0 8px;
+        }
+        .footer span {
+            color: #666;
+            font-weight: 600;
+        }
+
+        /* BOTTOM NAV */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0 env(safe-area-inset-bottom, 8px);
+            z-index: 50;
+        }
+        .bottom-nav a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-size: 9px;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            padding: 4px 12px;
+            border-radius: 8px;
+            transition: all 0.12s;
+        }
+        .bottom-nav a.active {
+            color: var(--text);
+        }
+        .bottom-nav a .nav-icon {
+            font-size: 17px;
+            line-height: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SPLASH SCREEN -->
+    <div class="splash" id="splash">
+        <div class="splash-bg-grid"></div>
+        <div id="particlesContainer"></div>
+
+        <div class="robot-wrap">
+            <div class="robot-head">
+                <div class="antenna"></div>
+                <div class="scan-line"></div>
+                <div class="robot-eye left"></div>
+                <div class="robot-eye right"></div>
+                <div class="robot-mouth"></div>
+            </div>
+            <div class="robot-body"></div>
+            <div class="robot-arm left"></div>
+            <div class="robot-arm right"></div>
+        </div>
+
+        <div class="splash-title">Vlota AI & Vloral AI</div>
+        <div class="splash-subtitle">by Gibran</div>
+
+        <div class="typewriter-wrap">
+            <span class="typewriter" id="typewriter"></span>
+        </div>
+
+        <div class="progress-wrap">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <div class="btn-init-wrap" id="btnInitWrap">
+            <div class="btn-init-glow"></div>
+            <button class="btn-init" onclick="initializeSystem()">Initialize</button>
+        </div>
+    </div>
+
+    <!-- TRANSITION FLASH -->
+    <div class="transition-flash" id="transitionFlash"></div>
+
+    <!-- DASHBOARD -->
+    <div class="dashboard" id="dashboard">
+        <!-- TOP BAR -->
+        <header class="topbar">
+            <div class="brand">
+                <div class="brand-logo">
+                    <img src="https://files.catbox.moe/vygiot.png" alt="Vlota Logo">
+                </div>
+                <div>
+                    <span class="brand-text">Vlota AI</span>
+                    <span class="brand-sub">by Gibran</span>
+                </div>
+            </div>
+            <div class="topbar-actions">
+                <button class="icon-btn" onclick="location.href='settings.html'">&#9881;</button>
+                <button class="icon-btn" onclick="toggleSidebar()">&#9776;</button>
+            </div>
+        </header>
+
+        <!-- SIDEBAR OVERLAY -->
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <img src="https://files.catbox.moe/vygiot.png" alt="Vlota Logo">
+                </div>
+                <button class="sidebar-close" onclick="toggleSidebar()">&#10005;</button>
+            </div>
+            <nav>
+                <div class="nav-group">
+                    <div class="nav-label">Main</div>
+                    <a href="dashboard.html" class="nav-link active">Dashboard</a>
+                    <a href="vlota-chat.html" class="nav-link">Vlota AI Chat</a>
+                    <a href="vloral-chat.html" class="nav-link">Vloral AI Chat</a>
+                    <a href="jailbreak.html" class="nav-link">Jailbreak Mode</a>
+                </div>
+                <div class="nav-group">
+                    <div class="nav-label">Tools</div>
+                    <a href="api-tester.html" class="nav-link">API Tester</a>
+                    <a href="history.html" class="nav-link">History</a>
+                    <a href="settings.html" class="nav-link">Settings</a>
+                </div>
+                <div class="nav-group">
+                    <div class="nav-label">Info</div>
+                    <a href="about.html" class="nav-link">About</a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="content">
+            <div class="greeting">
+                <h1>Dashboard</h1>
+                <p>Welcome back. All systems operational.</p>
+            </div>
+
+            <!-- STATS GRID -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="value">12</div>
+                    <div class="label">Active Models</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value">99.9%</div>
+                    <div class="label">Uptime</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value">1,247</div>
+                    <div class="label">Total Chats</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value">89</div>
+                    <div class="label">API Calls Today</div>
+                </div>
+            </div>
+
+            <!-- QUICK ACTIONS -->
+            <div class="quick-actions">
+                <div class="quick-btn" onclick="location.href='vlota-chat.html'">New Vlota Chat</div>
+                <div class="quick-btn" onclick="location.href='vloral-chat.html'">New Vloral Chat</div>
+                <div class="quick-btn" onclick="location.href='jailbreak.html'">Jailbreak Mode</div>
+            </div>
+
+            <!-- SYSTEM STATUS -->
+            <div class="system-status">
+                <div class="status-indicator"></div>
+                <div class="status-text">System Online</div>
+                <div class="status-detail">v2.4.1 | 12 models connected</div>
+            </div>
+
+            <!-- AI MODELS -->
+            <div class="section-header">
+                <div class="section-title">AI Models</div>
+                <div class="section-more">View All</div>
+            </div>
+            <div class="ai-cards">
+                <a href="vlota-chat.html" class="ai-card">
+                    <div class="card-top">
+                        <span class="card-name">Vlota AI</span>
+                        <span class="card-badge online">Online</span>
+                    </div>
+                    <div class="card-desc">Multi-model chat. GPT, Claude, DeepSeek, Grok, Llama, Qwen, Perplexity.</div>
+                    <div class="card-tags">
+                        <span class="tag">ChatGPT</span><span class="tag">DeepSeek</span><span class="tag">Claude</span>
+                        <span class="tag">Grok</span><span class="tag">Llama</span><span class="tag">Qwen</span><span class="tag">Perplexity</span>
+                    </div>
+                </a>
+
+                <a href="vloral-chat.html" class="ai-card">
+                    <div class="card-top">
+                        <span class="card-name">Vloral AI</span>
+                        <span class="card-badge">Gemini</span>
+                    </div>
+                    <div class="card-desc">Google Gemini with jailbreak toggle. Normal & unrestricted modes.</div>
+                    <div class="card-tags">
+                        <span class="tag">Gemini</span><span class="tag">Jailbreak ON</span><span class="tag">Jailbreak OFF</span>
+                    </div>
+                </a>
+
+                <a href="jailbreak.html" class="ai-card">
+                    <div class="card-top">
+                        <span class="card-name">WormGPT</span>
+                        <span class="card-badge danger">Unrestricted</span>
+                    </div>
+                    <div class="card-desc">Uncensored AI. WormGPT & Anubis models. No filters, no limits.</div>
+                    <div class="card-tags">
+                        <span class="tag">WormGPT</span><span class="tag">Anubis-70B</span>
+                    </div>
+                </a>
+            </div>
+
+            <!-- RESOURCE USAGE -->
+            <div class="section-header">
+                <div class="section-title">System Resources</div>
+            </div>
+            <div class="resource-section">
+                <div class="resource-bar">
+                    <span class="bar-label">CPU</span>
+                    <div class="bar-track"><div class="bar-fill" style="width: 12%;"></div></div>
+                    <span>12%</span>
+                </div>
+                <div class="resource-bar">
+                    <span class="bar-label">Memory</span>
+                    <div class="bar-track"><div class="bar-fill" style="width: 34%;"></div></div>
+                    <span>34%</span>
+                </div>
+                <div class="resource-bar">
+                    <span class="bar-label">Network</span>
+                    <div class="bar-track"><div class="bar-fill" style="width: 5%;"></div></div>
+                    <span>5%</span>
+                </div>
+            </div>
+
+            <!-- RECENT CONVERSATIONS -->
+            <div class="section-header">
+                <div class="section-title">Recent Conversations</div>
+                <div class="section-more">Clear All</div>
+            </div>
+            <div class="recent-list">
+                <div class="recent-item" onclick="location.href='vlota-chat.html'">
+                    <div class="recent-left">
+                        <div class="recent-dot"></div>
+                        <span class="recent-name">Vlota AI - ChatGPT</span>
+                    </div>
+                    <span class="recent-time">2m ago</span>
+                </div>
+                <div class="recent-item" onclick="location.href='vloral-chat.html'">
+                    <div class="recent-left">
+                        <div class="recent-dot"></div>
+                        <span class="recent-name">Vloral AI - Jailbreak ON</span>
+                    </div>
+                    <span class="recent-time">15m ago</span>
+                </div>
+                <div class="recent-item" onclick="location.href='vlota-chat.html'">
+                    <div class="recent-left">
+                        <div class="recent-dot"></div>
+                        <span class="recent-name">Vlota AI - DeepSeek</span>
+                    </div>
+                    <span class="recent-time">1h ago</span>
+                </div>
+                <div class="recent-item" onclick="location.href='jailbreak.html'">
+                    <div class="recent-left">
+                        <div class="recent-dot warning"></div>
+                        <span class="recent-name">WormGPT - Uncensored</span>
+                    </div>
+                    <span class="recent-time">3h ago</span>
+                </div>
+                <div class="recent-item" onclick="location.href='vloral-chat.html'">
+                    <div class="recent-left">
+                        <div class="recent-dot"></div>
+                        <span class="recent-name">Vloral AI - Normal</span>
+                    </div>
+                    <span class="recent-time">Yesterday</span>
+                </div>
+            </div>
+
+            <!-- TIPS CARD -->
+            <div class="tips-card">
+                <div class="tips-title">Pro Tip</div>
+                <div class="tips-text">Use <strong>Jailbreak Mode</strong> on Vloral AI for uncensored responses. Toggle it anytime from the chat screen.</div>
+            </div>
+
+            <!-- ACTIVITY LOG -->
+            <div class="section-header">
+                <div class="section-title">System Activity</div>
+            </div>
+            <div class="activity-log">
+                <div class="log-item">
+                    <div class="log-icon success"></div>
+                    <div class="log-content">Vlota model "ChatGPT" deployed successfully</div>
+                    <div class="log-time">2m ago</div>
+                </div>
+                <div class="log-item">
+                    <div class="log-icon info"></div>
+                    <div class="log-content">Jailbreak session started on Vloral</div>
+                    <div class="log-time">15m ago</div>
+                </div>
+                <div class="log-item">
+                    <div class="log-icon info"></div>
+                    <div class="log-content">New chat created in Vlota - Claude model</div>
+                    <div class="log-time">1h ago</div>
+                </div>
+                <div class="log-item">
+                    <div class="log-icon warn"></div>
+                    <div class="log-content">WormGPT query executed: "cara hek nasa"</div>
+                    <div class="log-time">3h ago</div>
+                </div>
+                <div class="log-item">
+                    <div class="log-icon success"></div>
+                    <div class="log-content">System update completed - v2.4.1</div>
+                    <div class="log-time">1d ago</div>
+                </div>
+            </div>
+
+            <div class="footer">
+                Created by <span>Gibran</span> &middot; Vlota AI & Vloral AI
+            </div>
+        </main>
+
+        <!-- BOTTOM NAV -->
+        <nav class="bottom-nav">
+            <a href="dashboard.html" class="active"><span class="nav-icon">&#9679;</span> Home</a>
+            <a href="vlota-chat.html"><span class="nav-icon">&#9679;</span> Vlota</a>
+            <a href="vloral-chat.html"><span class="nav-icon">&#9679;</span> Vloral</a>
+            <a href="jailbreak.html"><span class="nav-icon">&#9679;</span> Jailbreak</a>
+            <a href="settings.html"><span class="nav-icon">&#9679;</span> Settings</a>
+        </nav>
+    </div>
+
+    <script>
+        // ==================== SPLASH LOGIC ====================
+        const typewriterEl = document.getElementById('typewriter');
+        const progressFill = document.getElementById('progressFill');
+        const btnInitWrap = document.getElementById('btnInitWrap');
+        const splash = document.getElementById('splash');
+        const dashboard = document.getElementById('dashboard');
+        const transitionFlash = document.getElementById('transitionFlash');
+
+        const messages = [
+            "Initializing quantum core...",
+            "Loading model parameters...",
+            "Establishing secure channel...",
+            "Calibrating neural interface...",
+            "System integrity check passed.",
+            "Ready."
+        ];
+
+        let msgIndex = 0;
+        let charIndex = 0;
+        let progress = 0;
+        const totalSteps = messages.length;
+        const progressPerStep = 100 / totalSteps;
+
+        function typeMessage() {
+            if (msgIndex >= messages.length) {
+                progressFill.style.width = '100%';
+                setTimeout(() => {
+                    btnInitWrap.classList.add('show');
+                }, 200);
+                return;
+            }
+            const currentMsg = messages[msgIndex];
+            if (charIndex < currentMsg.length) {
+                typewriterEl.textContent += currentMsg.charAt(charIndex);
+                charIndex++;
+                setTimeout(typeMessage, 40 + Math.random() * 30);
+            } else {
+                charIndex = 0;
+                msgIndex++;
+                progress = Math.min(100, msgIndex * progressPerStep);
+                progressFill.style.width = progress + '%';
+                setTimeout(() => {
+                    typewriterEl.textContent = '';
+                    typeMessage();
+                }, 500);
+            }
+        }
+
+        function initializeSystem() {
+            transitionFlash.classList.add('active');
+            setTimeout(() => {
+                transitionFlash.classList.remove('active');
+                splash.classList.add('exit');
+                setTimeout(() => {
+                    splash.style.display = 'none';
+                    dashboard.classList.add('active');
+                }, 300);
+            }, 120);
+            sessionStorage.setItem('splashSeen', 'true');
+        }
+
+        function createParticles() {
+            const container = document.getElementById('particlesContainer');
+            const count = 35;
+            for (let i = 0; i < count; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDuration = (6 + Math.random() * 14) + 's';
+                particle.style.animationDelay = Math.random() * 10 + 's';
+                particle.style.width = (1 + Math.random() * 2) + 'px';
+                particle.style.height = particle.style.width;
+                container.appendChild(particle);
+            }
+        }
+
+        function init() {
+            if (sessionStorage.getItem('splashSeen') === 'true') {
+                splash.style.display = 'none';
+                dashboard.classList.add('active');
+            } else {
+                createParticles();
+                setTimeout(typeMessage, 500);
+            }
+        }
+
+        init();
+
+        // ==================== SIDEBAR ====================
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('show');
+            document.getElementById('sidebarOverlay').classList.toggle('show');
+        }
+
+        let touchStartX = 0;
+        document.addEventListener('touchstart', function(e) {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+
+        document.addEventListener('touchend', function(e) {
+            const diff = e.changedTouches[0].screenX - touchStartX;
+            if (diff < -60) {
+                document.getElementById('sidebar').classList.remove('show');
+                document.getElementById('sidebarOverlay').classList.remove('show');
+            }
+        });
+    </script>
+</body>
+</html>
