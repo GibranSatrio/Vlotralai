@@ -719,54 +719,50 @@
             sendMessage();
         }
 
-        async function sendMessage() {
-            const text = chatInput.value.trim();
-            if (!text) return;
-            if (emptyState) emptyState.style.display = 'none';
+async function sendMessage() {
+    const text = chatInput.value.trim();
+    if (!text) return;
+    if (emptyState) emptyState.style.display = 'none';
 
-            addMessage('user', text);
-            chatInput.value = '';
-            chatInput.style.height = 'auto';
-            chatInput.focus();
+    addMessage('user', text);
+    chatInput.value = '';
+    chatInput.style.height = 'auto';
+    chatInput.focus();
 
-            const typingId = addTypingIndicator();
-            try {
-                let url;
-                if (jailbreakActive) {
-                    // Gunakan WormGPT / Uncensored
-                    url = `https://api-nanzz.my.id/docs/api/ai/worm-gpt.php?prompt=${encodeURIComponent(text)}`;
-                } else {
-                    // Gunakan Gemini
-                    url = `https://api-nanzz.my.id/docs/api/ai/gemini.php?text=${encodeURIComponent(text)}`;
-                }
+    const typingId = addTypingIndicator();
+    try {
+        let url;
+        if (jailbreakActive) {
+            url = `/api/proxy?api=wormgpt&prompt=${encodeURIComponent(text)}`;
+        } else {
+            url = `/api/proxy?api=gemini&text=${encodeURIComponent(text)}`;
+        }
 
-                const res = await fetch(url);
-                const data = await res.json();
-                removeTypingIndicator(typingId);
+        const res = await fetch(url);
+        const data = await res.json();
+        removeTypingIndicator(typingId);
 
-                let responseText = '';
-                if (jailbreakActive) {
-                    // Response WormGPT
-                    if (data.status && data.result && data.result.response) {
-                        responseText = data.result.response;
-                    } else {
-                        responseText = 'Gagal mendapatkan respons dari WormGPT.';
-                    }
-                } else {
-                    // Response Gemini
-                    if (data.status && data.result) {
-                        responseText = data.result;
-                    } else {
-                        responseText = 'Gagal mendapatkan respons dari Gemini.';
-                    }
-                }
-
-                addMessage('ai', responseText);
-            } catch (e) {
-                removeTypingIndicator(typingId);
-                addMessage('ai', 'Error: Gagal terhubung ke API Vloral.');
+        let responseText = '';
+        if (jailbreakActive) {
+            if (data.status && data.result && data.result.response) {
+                responseText = data.result.response;
+            } else {
+                responseText = 'Gagal mendapatkan respons dari WormGPT.';
+            }
+        } else {
+            if (data.status && data.result) {
+                responseText = data.result;
+            } else {
+                responseText = 'Gagal mendapatkan respons dari Gemini.';
             }
         }
+
+        addMessage('ai', responseText);
+    } catch (e) {
+        removeTypingIndicator(typingId);
+        addMessage('ai', 'Error: Gagal terhubung ke API Vloral.');
+    }
+}
 
         function addMessage(type, content) {
             const div = document.createElement('div');

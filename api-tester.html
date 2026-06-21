@@ -432,44 +432,44 @@
         }
 
         async function sendRequest() {
-            const inputText = document.getElementById('inputText').value.trim();
-            if (!inputText) return;
+    const inputText = document.getElementById('inputText').value.trim();
+    if (!inputText) return;
 
-            const config = endpointConfigs[currentEndpoint];
-            let url = config.url;
-            const params = { ...config.params };
+    const config = endpointConfigs[currentEndpoint];
+    let url = '/api/proxy?api=' + currentEndpoint;
+    const params = { ...config.params };
 
-            if (currentEndpoint === 'chat-gpt') {
-                params.text = inputText;
-                params.model = document.getElementById('modelSelect').value;
-                url += '?' + new URLSearchParams(params).toString();
-            } else if (currentEndpoint === 'gemini') {
-                params.text = inputText;
-                url += '?' + new URLSearchParams(params).toString();
-            } else if (currentEndpoint === 'worm-gpt') {
-                params.prompt = inputText;
-                url += '?' + new URLSearchParams(params).toString();
-            } else if (currentEndpoint === 'uncensored') {
-                params.text = inputText;
-                url += '?' + new URLSearchParams(params).toString();
-            }
+    if (currentEndpoint === 'chat-gpt') {
+        params.text = inputText;
+        params.model = document.getElementById('modelSelect').value;
+        url += '&' + new URLSearchParams(params).toString();
+    } else if (currentEndpoint === 'gemini') {
+        params.text = inputText;
+        url += '&' + new URLSearchParams(params).toString();
+    } else if (currentEndpoint === 'worm-gpt') {
+        params.prompt = inputText;
+        url += '&' + new URLSearchParams(params).toString();
+    } else if (currentEndpoint === 'uncensored') {
+        params.text = inputText;
+        url += '&' + new URLSearchParams(params).toString();
+    }
 
-            showResponseArea();
-            document.getElementById('responseBody').textContent = 'Loading...';
-            document.getElementById('statusCode').textContent = '...';
+    showResponseArea();
+    document.getElementById('responseBody').textContent = 'Loading...';
+    document.getElementById('statusCode').textContent = '...';
 
-            try {
-                const res = await fetch(url);
-                const data = await res.json();
-                document.getElementById('statusCode').textContent = res.status + ' OK';
-                document.getElementById('statusCode').className = 'status-code status-success';
-                document.getElementById('responseBody').textContent = JSON.stringify(data, null, 2);
-            } catch (err) {
-                document.getElementById('statusCode').textContent = 'Error';
-                document.getElementById('statusCode').className = 'status-code status-error';
-                document.getElementById('responseBody').textContent = 'Network error: ' + err.message;
-            }
-        }
+    try {
+        const res = await fetch(url);
+        const data = await res.json();
+        document.getElementById('statusCode').textContent = res.status + ' OK';
+        document.getElementById('statusCode').className = 'status-code status-success';
+        document.getElementById('responseBody').textContent = JSON.stringify(data, null, 2);
+    } catch (err) {
+        document.getElementById('statusCode').textContent = 'Error';
+        document.getElementById('statusCode').className = 'status-code status-error';
+        document.getElementById('responseBody').textContent = 'Network error: ' + err.message;
+    }
+}
 
         function showResponseArea() {
             document.getElementById('responseArea').style.display = 'block';

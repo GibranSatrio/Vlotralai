@@ -777,48 +777,48 @@
             sendMessage();
         }
 
-        async function sendMessage() {
-            const text = chatInput.value.trim();
-            if (!text) return;
-            if (emptyState) emptyState.style.display = 'none';
+async function sendMessage() {
+    const text = chatInput.value.trim();
+    if (!text) return;
+    if (emptyState) emptyState.style.display = 'none';
 
-            addMessage('user', text);
-            chatInput.value = '';
-            chatInput.style.height = 'auto';
-            chatInput.focus();
+    addMessage('user', text);
+    chatInput.value = '';
+    chatInput.style.height = 'auto';
+    chatInput.focus();
 
-            const typingId = addTypingIndicator();
-            try {
-                let url;
-                if (currentModel === 'anubis') {
-                    url = `https://api-nanzz.my.id/docs/api/ai/uncensored-ai.php?text=${encodeURIComponent(text)}`;
-                } else {
-                    url = `https://api-nanzz.my.id/docs/api/ai/worm-gpt.php?prompt=${encodeURIComponent(text)}`;
-                }
-
-                const res = await fetch(url);
-                const data = await res.json();
-                removeTypingIndicator(typingId);
-
-                let responseText = '';
-                if (data.status && data.result) {
-                    if (currentModel === 'wormgpt' && data.result.response) {
-                        responseText = data.result.response;
-                    } else if (currentModel === 'anubis' && data.result.text) {
-                        responseText = data.result.text;
-                    } else {
-                        responseText = 'Respons tidak tersedia.';
-                    }
-                } else {
-                    responseText = 'Gagal mendapatkan respons.';
-                }
-
-                addMessage('ai', responseText, true);
-            } catch (e) {
-                removeTypingIndicator(typingId);
-                addMessage('ai', 'Error: Gagal terhubung ke API Jailbreak.', true);
-            }
+    const typingId = addTypingIndicator();
+    try {
+        let url;
+        if (currentModel === 'anubis') {
+            url = `/api/proxy?api=uncensored&text=${encodeURIComponent(text)}`;
+        } else {
+            url = `/api/proxy?api=wormgpt&prompt=${encodeURIComponent(text)}`;
         }
+
+        const res = await fetch(url);
+        const data = await res.json();
+        removeTypingIndicator(typingId);
+
+        let responseText = '';
+        if (data.status && data.result) {
+            if (currentModel === 'wormgpt' && data.result.response) {
+                responseText = data.result.response;
+            } else if (currentModel === 'anubis' && data.result.text) {
+                responseText = data.result.text;
+            } else {
+                responseText = 'Respons tidak tersedia.';
+            }
+        } else {
+            responseText = 'Gagal mendapatkan respons.';
+        }
+
+        addMessage('ai', responseText, true);
+    } catch (e) {
+        removeTypingIndicator(typingId);
+        addMessage('ai', 'Error: Gagal terhubung ke API Jailbreak.', true);
+    }
+}
 
         function addMessage(type, content, isUnrestricted = false) {
             const div = document.createElement('div');

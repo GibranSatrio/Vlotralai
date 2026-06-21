@@ -766,34 +766,33 @@
             sendMessage();
         }
 
-        async function sendMessage() {
-            const text = chatInput.value.trim();
-            if (!text) return;
-            if (emptyState) emptyState.style.display = 'none';
+async function sendMessage() {
+    const text = chatInput.value.trim();
+    if (!text) return;
+    if (emptyState) emptyState.style.display = 'none';
 
-            addMessage('user', text);
-            chatInput.value = '';
-            chatInput.style.height = 'auto';
-            chatInput.focus();
+    addMessage('user', text);
+    chatInput.value = '';
+    chatInput.style.height = 'auto';
+    chatInput.focus();
 
-            const typingId = addTypingIndicator();
-            try {
-                // Gabungkan system prompt dengan teks user
-                const fullText = SYSTEM_PROMPT + text;
-                const url = `https://api-nanzz.my.id/docs/api/ai/chat-gpt.php?text=${encodeURIComponent(fullText)}&model=${currentModel}`;
-                const res = await fetch(url);
-                const data = await res.json();
-                removeTypingIndicator(typingId);
-                if (data.status && data.result && data.result.text) {
-                    addMessage('ai', data.result.text);
-                } else {
-                    addMessage('ai', 'Maaf, tidak ada respons dari model.');
-                }
-            } catch (e) {
-                removeTypingIndicator(typingId);
-                addMessage('ai', 'Error: Gagal terhubung ke API Vlota.');
-            }
+    const typingId = addTypingIndicator();
+    try {
+        const fullText = "Kamu adalah Vlota AI, asisten virtual yang sangat membantu, dibuat oleh Gibran. " + text;
+        const url = `/api/proxy?api=chat&text=${encodeURIComponent(fullText)}&model=${currentModel}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        removeTypingIndicator(typingId);
+        if (data.status && data.result && data.result.text) {
+            addMessage('ai', data.result.text);
+        } else {
+            addMessage('ai', 'Maaf, tidak ada respons dari model.');
         }
+    } catch (e) {
+        removeTypingIndicator(typingId);
+        addMessage('ai', 'Error: Gagal terhubung ke API Vlota.');
+    }
+}
 
         function addMessage(type, content) {
             const div = document.createElement('div');
